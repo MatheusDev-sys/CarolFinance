@@ -17,7 +17,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur-md pt-safe">
         <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-4">
           <h1 className="text-xl font-bold tracking-tight text-indigo-600">Carol Finance</h1>
           <button 

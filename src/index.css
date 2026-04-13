@@ -6,6 +6,7 @@
 
 :root {
   --pb-safe: env(safe-area-inset-bottom);
+  --pt-safe: env(safe-area-inset-top);
 }
 
 body {
@@ -16,6 +17,10 @@ body {
 
 .pb-safe {
   padding-bottom: var(--pb-safe);
+}
+
+.pt-safe {
+  padding-top: var(--pt-safe);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
