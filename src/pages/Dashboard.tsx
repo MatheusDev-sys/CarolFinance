@@ -2,25 +2,43 @@ import { useEffect, useState } from 'react';
 import { requestsService, type Request } from '../services/requests';
 import { formatCurrency, formatDate, cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
-import { Clock, CheckCircle2, XCircle, ChevronRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, ChevronRight, Image as ImageIcon, AlertCircle, Wallet } from 'lucide-react';
+import { settingsService } from '../services/settings';
 
 export default function Dashboard() {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [saldoAtual, setSaldoAtual] = useState(0);
+
   useEffect(() => {
     loadRequests();
+    loadSaldo();
 
     // Subscribe to real-time changes
     const subscription = requestsService.subscribeToRequests(() => {
       loadRequests(); // Reload data when any change happens
     });
+    
+    const settingsSub = settingsService.subscribeToSettings(() => {
+      loadSaldo();
+    });
 
     return () => {
       subscription.unsubscribe();
+      settingsSub.unsubscribe();
     };
   }, []);
+
+  async function loadSaldo() {
+    try {
+      const saldo = await settingsService.getSaldoAtual();
+      setSaldoAtual(saldo);
+    } catch (err) {
+      console.error('Error loading saldo:', err);
+    }
+  }
 
   async function loadRequests() {
     try {
@@ -49,6 +67,15 @@ export default function Dashboard() {
         <h2 className="text-2xl font-bold text-slate-900">Minhas Solicitações</h2>
         <p className="text-sm text-slate-500">Acompanhe o status dos seus pedidos</p>
       </header>
+
+      {/* Saldo Atual Banner */}
+      <div className="rounded-2xl bg-indigo-600 p-6 text-white shadow-xl shadow-indigo-200">
+        <div className="mb-2 flex items-center space-x-2 opacity-80">
+          <Wallet size={20} />
+          <h3 className="text-sm font-medium uppercase tracking-wider">Seu Saldo Atual</h3>
+        </div>
+        <p className="text-4xl font-black">{formatCurrency(saldoAtual)}</p>
+      </div>
 
       {error && (
         <div className="flex items-center rounded-xl bg-red-50 p-4 text-red-600">

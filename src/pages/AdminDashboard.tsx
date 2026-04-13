@@ -3,10 +3,11 @@ import { requestsService, type Request } from '../services/requests';
 import { formatCurrency, formatDate, cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Clock, CheckCircle2, XCircle, ChevronRight, 
+import { Clock, CheckCircle2, XCircle, ChevronRight, 
   Image as ImageIcon, AlertCircle, Filter, 
-  Check, X, CreditCard, User as UserIcon 
+  Check, X, CreditCard, User as UserIcon, DollarSign, Wallet
 } from 'lucide-react';
+import { settingsService } from '../services/settings';
 
 export default function AdminDashboard() {
   const [requests, setRequests] = useState<Request[]>([]);
@@ -15,19 +16,52 @@ export default function AdminDashboard() {
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [adminResponse, setAdminResponse] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [saldoAtual, setSaldoAtual] = useState(0);
+  const [isEditingSaldo, setIsEditingSaldo] = useState(false);
+  const [newSaldo, setNewSaldo] = useState('');
 
   useEffect(() => {
     loadRequests();
+    loadSaldo();
 
     // Subscribe to real-time changes
     const subscription = requestsService.subscribeToRequests(() => {
       loadRequests(); // Reload data when any change happens
     });
+    
+    const settingsSub = settingsService.subscribeToSettings(() => {
+      loadSaldo();
+    });
 
     return () => {
       subscription.unsubscribe();
+      settingsSub.unsubscribe();
     };
   }, []);
+
+  async function loadSaldo() {
+    try {
+      const saldo = await settingsService.getSaldoAtual();
+      setSaldoAtual(saldo);
+    } catch (err) {
+      console.error('Error loading saldo:', err);
+    }
+  }
+
+  const handleUpdateSaldo = async () => {
+    try {
+      setLoading(true);
+      await settingsService.updateSaldoAtual(Number(newSaldo.replace(',', '.')));
+      setIsEditingSaldo(false);
+      setNewSaldo('');
+      await loadSaldo();
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao atualizar saldo.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   async function loadRequests() {
     try {
@@ -87,6 +121,56 @@ export default function AdminDashboard() {
         <h2 className="text-2xl font-bold text-slate-900">Painel Administrativo</h2>
         <p className="text-sm text-slate-500">Gerencie as solicitações financeiras</p>
       </header>
+
+      {/* Saldo Management */}
+      <div className="rounded-2xl bg-indigo-600 p-6 text-white shadow-xl shadow-indigo-200">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2 opacity-80">
+            <Wallet size={20} />
+            <h3 className="text-sm font-medium uppercase tracking-wider">Saldo Atual (Visível para Carol)</h3>
+          </div>
+        </div>
+        {!isEditingSaldo ? (
+          <div className="flex items-end justify-between">
+            <p className="text-4xl font-black">{formatCurrency(saldoAtual)}</p>
+            <button 
+              onClick={() => { setIsEditingSaldo(true); setNewSaldo(saldoAtual.toString()); }}
+              className="rounded-xl bg-white/20 px-4 py-2 text-sm font-bold backdrop-blur-sm transition-all hover:bg-white/30 active:scale-95"
+            >
+              Atualizar
+            </button>
+          </div>
+        ) : (
+          <div className="flex space-x-2">
+            <div className="relative flex-1">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <DollarSign size={20} className="text-indigo-300" />
+              </div>
+              <input
+                type="number"
+                step="0.01"
+                value={newSaldo}
+                onChange={(e) => setNewSaldo(e.target.value)}
+                className="w-full rounded-xl border border-transparent bg-indigo-700/50 py-3 pl-10 pr-4 text-white outline-none placeholder:text-indigo-300 focus:border-white focus:bg-indigo-700"
+                placeholder="Novo valor..."
+                autoFocus
+              />
+            </div>
+            <button 
+              onClick={handleUpdateSaldo}
+              className="flex items-center justify-center rounded-xl bg-white px-4 font-bold text-indigo-600 transition-all hover:bg-indigo-50 active:scale-95"
+            >
+              Salvar
+            </button>
+            <button 
+              onClick={() => setIsEditingSaldo(false)}
+              className="flex items-center justify-center rounded-xl bg-indigo-800 px-4 text-white transition-all hover:bg-indigo-900 active:scale-95"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Filters */}
       <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
