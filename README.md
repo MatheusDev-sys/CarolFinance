@@ -1,20 +1,51 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Carol Finance 💸
 
-# Run and deploy your AI Studio app
+Sistema de controle financeiro feito pra facilitar a vida da Carolaine.
 
-This contains everything you need to run your app locally.
+A ideia é simples: ela consegue registrar pedidos, acompanhar o histórico e ter tudo organizado num lugar só — sem planilha, sem papel, sem dor de cabeça.
 
-View your app in AI Studio: https://ai.studio/apps/2cc3a148-261c-43ac-8e94-dc429acf4db0
+## O que tem aqui
 
-## Run Locally
+- Login com autenticação via Supabase
+- Dashboard com visão geral dos pedidos
+- Área de admin separada
+- Novo pedido com upload de imagem
+- Ajustes de conta
+- Funciona como app no celular (PWA) — é só adicionar na tela inicial
 
-**Prerequisites:**  Node.js
+## Tecnologias
 
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- Supabase (auth + banco)
+- Hospedado no GitHub Pages
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Rodar localmente
+
+Precisa ter o Node.js instalado.
+
+```bash
+npm install
+```
+
+Cria um arquivo `.env` na raiz com:
+
+```
+VITE_SUPABASE_URL=sua_url_aqui
+VITE_SUPABASE_ANON_KEY=sua_chave_aqui
+```
+
+Depois é só:
+
+```bash
+npm run dev
+```
+
+## Deploy
+
+O deploy é automático via GitHub Actions sempre que tem push na `main`. O site vai pra:
+
+```
+https://matheusdev-sys.github.io/CarolFinance/
+```
