@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { requestsService, type Request } from '../services/requests';
 import { formatCurrency, formatDate, cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
 import { Clock, CheckCircle2, XCircle, ChevronRight, 
   Image as ImageIcon, AlertCircle, Filter, 
   Check, X, CreditCard, User as UserIcon, DollarSign, Wallet
